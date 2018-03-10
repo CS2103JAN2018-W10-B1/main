@@ -11,6 +11,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javafx.collections.ObservableList;
+import seedu.address.model.group.Group;
+import seedu.address.model.group.UniqueGroupList;
+import seedu.address.model.group.exceptions.DuplicateGroupException;
+import seedu.address.model.group.exceptions.GroupNotFoundException;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.UniquePersonList;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
@@ -24,6 +28,7 @@ import seedu.address.model.tag.UniqueTagList;
  */
 public class AddressBook implements ReadOnlyAddressBook {
 
+    private final UniqueGroupList groups;
     private final UniquePersonList persons;
     private final UniqueTagList tags;
 
@@ -35,6 +40,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      *   among constructors.
      */
     {
+        groups = new UniqueGroupList();
         persons = new UniquePersonList();
         tags = new UniqueTagList();
     }
@@ -73,6 +79,43 @@ public class AddressBook implements ReadOnlyAddressBook {
             setPersons(syncedPersonList);
         } catch (DuplicatePersonException e) {
             throw new AssertionError("AddressBooks should not have duplicate persons");
+        }
+    }
+
+    //// group-level operations
+
+    /**
+     * Adds a group to the address book.
+     *
+     * @throws DuplicateGroupException if an equivalent group already exists.
+     */
+    public void addGroup(Group g) throws DuplicateGroupException {
+        groups.add(g);
+    }
+
+    /**
+     * Replaces the given group {@code target} in the list with {@code editedGroup}.
+     *
+     * @throws DuplicateGroupException if updating the group's details causes the group to be equivalent to
+     *      another existing group in the list.
+     * @throws GroupNotFoundException if {@code target} could not be found in the list.
+     */
+    public void updateGroup(Group target, Group editedGroup)
+            throws DuplicateGroupException, GroupNotFoundException {
+        requireNonNull(editedGroup);
+
+        groups.setGroup(target, editedGroup);
+    }
+
+    /**
+     * Removes {@code key} from this {@code AddressBook}.
+     * @throws GroupNotFoundException if the {@code key} is not in this {@code AddressBook}.
+     */
+    public boolean removeGroup(Group key) throws GroupNotFoundException {
+        if (groups.remove(key)) {
+            return true;
+        } else {
+            throw new GroupNotFoundException();
         }
     }
 
@@ -159,6 +202,11 @@ public class AddressBook implements ReadOnlyAddressBook {
     public String toString() {
         return persons.asObservableList().size() + " persons, " + tags.asObservableList().size() +  " tags";
         // TODO: refine later
+    }
+
+    @Override
+    public ObservableList<Group> getGroupList() {
+        return groups.asObservableList();
     }
 
     @Override
