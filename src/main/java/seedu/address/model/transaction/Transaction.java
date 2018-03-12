@@ -1,56 +1,44 @@
 package seedu.address.model.transaction;
 
+import java.util.Objects;
+import java.util.Set;
+
+import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.UniquePersonList;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
 
-import java.util.Objects;
-import java.util.Set;
-
+/**
+ * Represent a transaction
+ */
 public class Transaction {
 
-    private final Person payer;
-    private final Double amount;
-    private final String description;
-    private final UniquePersonList payees;
+    private final Name payer;
+    private final Amount amount;
+    private final Description description;
+    private final Name payee;
 
-    public Transaction(Person payer, Double amount, String description, UniquePersonList payees) {
+    public Transaction(Name payer, Amount amount, Description description, Name payee) {
         this.payer = payer;
         this.amount = amount;
         this.description = description;
-        this.payees = payees;
+        this.payee = payee;
     }
 
-    public Transaction(Person payer, Double amount, String description, Set<Person> payeesToAdd) {
-        UniquePersonList payees = new UniquePersonList();
-        for(Person p: payeesToAdd) {
-            try {
-                payees.add(p);
-            } catch (DuplicatePersonException e) {
-                System.out.println("Duplicate person" + p.getName() + " not added to list of payees");
-            }
-        }
-
-        this.payer = payer;
-        this.amount = amount;
-        this.description = description;
-        this.payees = payees;
-    }
-
-    public Person getPayer() {
+    public Name getPayer() {
         return payer;
     }
 
-    public Double getAmount() {
+    public Amount getAmount() {
         return amount;
     }
 
-    public String getDescription() {
+    public Description getDescription() {
         return description;
     }
 
-    public UniquePersonList getPayees() {
-        return payees;
+    public Name getPayee() {
+        return payee;
     }
 
     @Override
@@ -67,25 +55,25 @@ public class Transaction {
         return otherTransaction.getPayer().equals(this.getPayer())
                 && otherTransaction.getAmount().equals(this.getAmount())
                 && otherTransaction.getDescription().equals(this.getDescription())
-                && otherTransaction.getPayees().equals(this.getPayees());
+                && otherTransaction.getPayee().equals(this.getPayee());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(payer, amount, description, payees);
+        return Objects.hash(payer, amount, description, payee);
     }
 
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append(" Transaction paid by: ")
-                .append(getPayer())
+                .append(getPayer().toString())
                 .append("\n Amount: ")
-                .append(getAmount())
+                .append(getAmount().toString())
                 .append("\n Description: ")
-                .append(getDescription())
+                .append(getDescription().toString())
                 .append("\n Payees: ")
-                .append(getPayees().asObservableList().toString());
+                .append(getPayee().toString());
         return builder.toString();
     }
 

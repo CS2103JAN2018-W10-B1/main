@@ -13,7 +13,7 @@ ifdef::env-github[]
 endif::[]
 :repoURL: https://github.com/se-edu/addressbook-level4
 
-By: `Team SE-EDU`      Since: `Jun 2016`      Licence: `MIT`
+By: `Kok Cong, Steven, Paul`      Since: `Jun 2016`      Licence: `MIT`
 
 == Introduction
 
