@@ -36,13 +36,8 @@ public class MainWindow extends UiPart<Stage> {
     // Independent Ui parts residing in this Ui container
     private TransactionListPanel transactionListPanel;
     private PersonListPanel personListPanel;
-    private BrowserPanel browserPanel;
     private Config config;
     private UserPrefs prefs;
-
-
-    @FXML
-    private StackPane browserPanelPlaceholder;
 
     @FXML
     private StackPane transactionListPanelPlaceholder;
@@ -128,9 +123,6 @@ public class MainWindow extends UiPart<Stage> {
         transactionListPanel = new TransactionListPanel(logic.getFilteredTransactionList());
         transactionListPanelPlaceholder.getChildren().add(transactionListPanel.getRoot());
 
-        browserPanel = new BrowserPanel();
-        browserPanelPlaceholder.getChildren().add(browserPanel.getRoot());
-
         ResultDisplay resultDisplay = new ResultDisplay();
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
 
@@ -192,10 +184,6 @@ public class MainWindow extends UiPart<Stage> {
 
     public PersonListPanel getPersonListPanel() {
         return this.personListPanel;
-    }
-
-    void releaseResources() {
-        browserPanel.freeResources();
     }
 
     @Subscribe
