@@ -2,6 +2,9 @@ package seedu.address.model;
 
 import static java.util.Objects.requireNonNull;
 
+import static seedu.address.logic.util.BalanceCalculationUtil.calculatePayeeDebt;
+import static seedu.address.logic.util.BalanceCalculationUtil.calculatePayerDebt;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,12 +14,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javafx.collections.ObservableList;
+import seedu.address.logic.commands.AddTransactionCommand;
+import seedu.address.logic.commands.DeleteTransactionCommand;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.UniquePersonList;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
 import seedu.address.model.person.exceptions.PersonNotFoundException;
 import seedu.address.model.tag.Tag;
 import seedu.address.model.tag.UniqueTagList;
+import seedu.address.model.transaction.Amount;
 import seedu.address.model.transaction.Transaction;
 import seedu.address.model.transaction.TransactionList;
 import seedu.address.model.transaction.exceptions.TransactionNotFoundException;
@@ -209,22 +215,44 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
-     * Adds {@code transaction} to the addressbook.
-     * Updates the balances of the person implied.
-     * @param transaction to add.
+     * add a new transaction
      */
     public void addTransaction(Transaction transaction) {
+        String typeOfTransaction = AddTransactionCommand.COMMAND_WORD;
         transactions.add(transaction);
-        transaction.updatePayerAndPayeesBalance();
-        debtsTable.updateDebts(transaction);
+        debtsTable.updateDebts(typeOfTransaction, transaction);
         debtsTable.display();
     }
 
+    /**
+     * Update each payer and payee(s) balance whenever each new transaction is added
+     */
+    public void updatePayerAndPayeesDebt(String transactionType, Amount amount, Person payer,
+                                            UniquePersonList payees) {
+        updatePayerDebt(transactionType, amount, payer, payees);
+        for (Person payee: payees) {
+            updatePayeeDebt(transactionType, amount, payee, payees); }
+    }
+    /**
+     * Update payer balance whenever each new transaction is added
+     */
+    private void updatePayerDebt(String transactionType, Amount amount, Person payer, UniquePersonList payees) {
+        payer.addToBalance(calculatePayerDebt(transactionType, amount, payees));
+    }
+    /**
+     * Update payee balance whenever each new transaction is added
+     */
+    private void updatePayeeDebt(String transactionType, Amount amount, Person payee, UniquePersonList payees) {
+        payee.addToBalance(calculatePayeeDebt(transactionType, amount, payees));
+    }
     /**
      * Removes {@code target} from the list of transactions.
      * @throws TransactionNotFoundException if the {@code target} is not in the list of transactions.
      */
     public boolean removeTransaction(Transaction target) throws TransactionNotFoundException {
+        String typeOfTransaction = DeleteTransactionCommand.COMMAND_WORD;
+        debtsTable.updateDebts(typeOfTransaction, target);
+        debtsTable.display();
         if (transactions.remove(target)) {
             return true;
         } else {

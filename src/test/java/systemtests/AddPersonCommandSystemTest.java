@@ -42,6 +42,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
+import seedu.address.model.person.exceptions.PersonFoundException;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
@@ -177,7 +178,7 @@ public class AddPersonCommandSystemTest extends AddressBookSystemTest {
      * {@code AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)}.<br>
      * @see AddressBookSystemTest#assertApplicationDisplaysExpected(String, String, Model)
      */
-    private void assertCommandSuccess(Person toAdd) {
+    private void assertCommandSuccess(Person toAdd) throws PersonFoundException {
         assertCommandSuccess(PersonUtil.getAddPersonCommand(toAdd), toAdd);
     }
 
@@ -186,7 +187,7 @@ public class AddPersonCommandSystemTest extends AddressBookSystemTest {
      * instead.
      * @see AddPersonCommandSystemTest#assertCommandSuccess(Person)
      */
-    private void assertCommandSuccess(String command, Person toAdd) {
+    private void assertCommandSuccess(String command, Person toAdd) throws PersonFoundException {
         Model expectedModel = getModel();
         try {
             expectedModel.addPerson(toAdd);

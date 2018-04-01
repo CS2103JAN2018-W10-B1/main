@@ -39,4 +39,5 @@ public interface Logic {
      * @param person to filter with.
      */
     void updateFilteredTransactionList(Person person);
+
 }

@@ -11,13 +11,13 @@
 <?import javafx.scene.layout.VBox?>
 
 <HBox id="cardPane" fx:id="cardPane" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
-  <GridPane prefHeight="105.0" prefWidth="114.0" HBox.hgrow="ALWAYS">
+  <GridPane prefHeight="105.0" prefWidth="89.0" HBox.hgrow="ALWAYS">
     <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10" prefWidth="150" />
     </columnConstraints>
     <VBox alignment="CENTER_LEFT" minHeight="100.0" prefHeight="105.0" prefWidth="81.0" GridPane.columnIndex="0">
       <padding>
-        <Insets bottom="5" left="15" right="5" top="5" />
+        <Insets bottom="5.0" left="15.0" right="5.0" />
       </padding>
       <HBox alignment="CENTER_LEFT" spacing="5">
         <Label fx:id="id" styleClass="cell_big_label">
@@ -36,13 +36,21 @@
          <RowConstraints />
       </rowConstraints>
   </GridPane>
-   <VBox prefHeight="105.0" prefWidth="63.0">
+   <VBox prefHeight="105.0" prefWidth="105.0">
       <children>
-         <Label fx:id="balance" prefHeight="57.0" prefWidth="63.0" text="\$balance">
-            <padding>
-               <Insets top="40.0" />
-            </padding>
-         </Label>
+         <Label text="Balance" />
+         <HBox prefHeight="100.0" prefWidth="200.0">
+            <children>
+               <Label fx:id="balance" prefHeight="20.0" prefWidth="105.0" text="\$balance">
+                  <graphic>
+                     <Label text="\$" />
+                  </graphic>
+               </Label>
+            </children>
+         </HBox>
       </children>
+      <padding>
+         <Insets top="25.0" />
+      </padding>
    </VBox>
 </HBox>

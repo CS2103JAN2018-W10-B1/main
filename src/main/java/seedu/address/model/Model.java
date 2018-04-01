@@ -1,12 +1,16 @@
 package seedu.address.model;
 
-import java.util.Set;
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
+import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.logic.parser.ArgumentMultimap;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.UniquePersonList;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
+import seedu.address.model.person.exceptions.PersonFoundException;
 import seedu.address.model.person.exceptions.PersonNotFoundException;
 import seedu.address.model.transaction.Transaction;
 import seedu.address.model.transaction.exceptions.TransactionNotFoundException;
@@ -34,7 +38,7 @@ public interface Model {
     void deletePerson(Person target) throws PersonNotFoundException;
 
     /** Adds the given person */
-    void addPerson(Person person) throws DuplicatePersonException;
+    void addPerson(Person person) throws DuplicatePersonException, PersonFoundException;
 
     /**
      * Replaces the given person {@code target} with {@code editedPerson}.
@@ -50,16 +54,22 @@ public interface Model {
     /** Finds a person by name */
     Person findPersonByName(Name name) throws PersonNotFoundException;
 
+    UniquePersonList getPayeesList(ArgumentMultimap argMultimap, Model model) throws PersonNotFoundException,
+            IllegalValueException;
+
+    /** Finds a person by in transaction */
+    void findPersonInTransaction(Name name) throws PersonNotFoundException;
+
     //@@author
     /** Returns an unmodifiable view of the filtered person list */
     ObservableList<Person> getFilteredPersonList();
 
     //@@author steven-jia
     /** Returns a set of transactions that have {@code person} as the payer */
-    Set<Transaction> findTransactionsWithPayer(Person person) throws TransactionNotFoundException;
+    boolean findTransactionsWithPayer(Person person) throws TransactionNotFoundException, PersonFoundException;
 
     /** Returns a set of transactions that have {@code person} as a payee */
-    Set<Transaction> findTransactionsWithPayee(Person person) throws TransactionNotFoundException;
+    boolean findTransactionsWithPayee(Person person) throws TransactionNotFoundException, PersonFoundException;
 
     //@@author
     /** Returns an unmodifiable view of the filtered transaction list */
@@ -72,7 +82,7 @@ public interface Model {
     void updateFilteredPersonList(Predicate<Person> predicate);
 
     /**
-     * Updates the filter of the filtered person list to filter by the given {@code predicate}.
+     * Updates the filter of the filtered transaction list to filter by the given {@code predicate}.
      * @throws NullPointerException if {@code predicate} is null.
      */
     void updateFilteredTransactionList(Predicate<Transaction> predicate);
@@ -81,5 +91,5 @@ public interface Model {
 
     //@@author phmignot
     /** Deletes the given person. */
-    void deleteTransaction(Transaction target) throws TransactionNotFoundException;
+    void deleteTransaction(Transaction target) throws TransactionNotFoundException, CommandException;
 }

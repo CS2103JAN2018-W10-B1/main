@@ -1,6 +1,6 @@
 package seedu.address.model;
 
-import static seedu.address.logic.util.BalanceCalculationUtil.calculatePayeeDept;
+import static seedu.address.logic.util.BalanceCalculationUtil.calculatePayeeDebt;
 
 import java.util.HashMap;
 
@@ -23,23 +23,23 @@ public class DebtsTable extends HashMap<Person, DebtsList> {
      * payerDept is a positive {@Code Balance} value, because the payer is owed.
      * @param transaction to register the table.
      */
-    public void updateDebts(Transaction transaction) {
+    public void updateDebts(String typeOfTransaction, Transaction transaction) {
         Person payer = transaction.getPayer();
         if (!this.containsKey(payer)) {
             this.add(payer);
-            System.out.println("Addinf payer " + payer.getName().fullName);
+            System.out.println("Adding payer " + payer.getName().fullName);
         }
         DebtsList payerDebtsLit = this.get(payer);
-        Balance payeeDebt = calculatePayeeDept(transaction.getAmount(), transaction.getPayees());
-        Balance payerDept = payeeDebt.getInverse();
+        Balance payeeDebt = calculatePayeeDebt(typeOfTransaction, transaction.getAmount(), transaction.getPayees());
+        Balance payerDebt = payeeDebt.getInverse();
         for (Person payee: transaction.getPayees()) {
             if (!this.containsKey(payee)) {
                 this.add(payee);
-                System.out.println("Adding payeeee " + payee.getName().fullName);
+                System.out.println("Adding payee " + payee.getName().fullName);
             }
             DebtsList payeeDebtsLit = this.get(payee);
             payerDebtsLit.updateDept(payee, payeeDebt);
-            payeeDebtsLit.updateDept(payer, payerDept);
+            payeeDebtsLit.updateDept(payer, payerDebt);
         }
     }
 

@@ -9,6 +9,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
+import seedu.address.model.person.exceptions.PersonFoundException;
 
 /**
  * Adds a person to the address book.
@@ -32,6 +33,8 @@ public class AddPersonCommand extends UndoableCommand {
 
     public static final String MESSAGE_SUCCESS = "New person added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book";
+    public static final String MESSAGE_PERSON_EXISTS_IN_TRANSACTION =
+            "Deleted person cannot be added again or the person already exists in the address book";
 
     private final Person toAdd;
 
@@ -51,6 +54,8 @@ public class AddPersonCommand extends UndoableCommand {
             return new CommandResult(String.format(MESSAGE_SUCCESS, toAdd));
         } catch (DuplicatePersonException e) {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
+        } catch (PersonFoundException a) {
+            throw new CommandException(MESSAGE_PERSON_EXISTS_IN_TRANSACTION);
         }
 
     }

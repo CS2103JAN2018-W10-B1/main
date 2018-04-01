@@ -21,7 +21,7 @@ public class DebtsList extends HashMap<Person, Balance> {
      */
     public void updateDept(Person person, Balance dept) {
         if (!this.containsKey(person)) {
-            this.put(person, dept);
+            this.put(person, new Balance("0.00"));
         }
         Balance oldDebts = this.get(person);
         this.replace(person, oldDebts.add(dept));
