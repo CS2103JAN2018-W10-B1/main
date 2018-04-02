@@ -11,7 +11,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Stream;
 
 import seedu.address.commons.exceptions.IllegalValueException;
@@ -49,7 +48,7 @@ public class AddTransactionCommandParser implements Parser<AddTransactionCommand
             Person payer = model.findPersonByName(ParserUtil.parseName(argMultimap.getValue(PREFIX_PAYER)).get());
             Amount amount = ParserUtil.parseAmount(argMultimap.getValue(PREFIX_AMOUNT)).get();
             Description description = ParserUtil.parseDescription(argMultimap.getValue(PREFIX_DESCRIPTION)).get();
-            UniquePersonList payees = getPayeesList(argMultimap, model);
+            UniquePersonList payees = model.getPayeesList(argMultimap, model);
             Date dateTime = Date.from(Instant.now(Clock.system(ZoneId.of("Asia/Singapore"))));
 
             Transaction transaction = new Transaction(payer, amount, description, dateTime, payees);
@@ -62,21 +61,7 @@ public class AddTransactionCommandParser implements Parser<AddTransactionCommand
         }
     }
 
-    //@@author steven-jia
-    private UniquePersonList getPayeesList(ArgumentMultimap argMultimap, Model model)
-            throws IllegalValueException, PersonNotFoundException {
-        UniquePersonList payees = new UniquePersonList();
-        List<String> payeeNamesToAdd = argMultimap.getAllValues(PREFIX_PAYEE);
 
-        if (!payeeNamesToAdd.isEmpty()) {
-            for (String payeeName: payeeNamesToAdd) {
-                payees.add(model.findPersonByName(ParserUtil.parseName(payeeName)));
-            }
-        } else {
-            throw new IllegalValueException("No payees were specified");
-        }
-        return payees;
-    }
 
     //@@author
     /**

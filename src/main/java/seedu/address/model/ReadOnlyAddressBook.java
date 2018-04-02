@@ -27,4 +27,5 @@ public interface ReadOnlyAddressBook {
      */
     ObservableList<Tag> getTagList();
 
+    DebtsTable getDebtsTable();
 }

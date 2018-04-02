@@ -25,6 +25,8 @@ public class DeleteTransactionCommand extends UndoableCommand {
             + "Example: " + COMMAND_WORD + " 1";
 
     public static final String MESSAGE_DELETE_TRANSACTION_SUCCESS = "Deleted Transaction: %1$s";
+    public static final String MESSAGE_NONEXISTENT_PAYER_PAYEES =
+            "The payer or payee(s) in the transaction do not exist";
 
     private final Index targetIndex;
 
@@ -36,21 +38,22 @@ public class DeleteTransactionCommand extends UndoableCommand {
 
 
     @Override
-    public CommandResult executeUndoableCommand() {
+    public CommandResult executeUndoableCommand() throws CommandException {
         requireNonNull(transactionToDelete);
         try {
             model.deleteTransaction(transactionToDelete);
         } catch (TransactionNotFoundException tnfe) {
             throw new AssertionError("The target transaction cannot be missing");
         }
-
         return new CommandResult(String.format(MESSAGE_DELETE_TRANSACTION_SUCCESS, transactionToDelete));
     }
 
     @Override
     protected void preprocessUndoableCommand() throws CommandException {
         List<Transaction> lastShownList = model.getFilteredTransactionList();
-
+        if (lastShownList.isEmpty()) {
+            throw new CommandException(Messages.MESSAGE_EMPTY_TRANSACTION_LIST);
+        }
         if (targetIndex.getZeroBased() >= lastShownList.size()) {
             throw new CommandException(Messages.MESSAGE_INVALID_TRANSACTION_DISPLAYED_INDEX);
         }

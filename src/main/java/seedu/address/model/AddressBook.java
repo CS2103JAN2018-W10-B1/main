@@ -1,6 +1,9 @@
 package seedu.address.model;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.commands.DeletePersonCommand.MESSAGE_DEBT_NOT_PAID;
+import static seedu.address.logic.util.BalanceCalculationUtil.calculatePayeeDebt;
+import static seedu.address.logic.util.BalanceCalculationUtil.calculatePayerDebt;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,12 +14,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javafx.collections.ObservableList;
+import seedu.address.logic.commands.AddTransactionCommand;
+import seedu.address.logic.commands.DeleteTransactionCommand;
+import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.person.Balance;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.UniquePersonList;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
 import seedu.address.model.person.exceptions.PersonNotFoundException;
 import seedu.address.model.tag.Tag;
 import seedu.address.model.tag.UniqueTagList;
+import seedu.address.model.transaction.Amount;
 import seedu.address.model.transaction.Transaction;
 import seedu.address.model.transaction.TransactionList;
 import seedu.address.model.transaction.exceptions.TransactionNotFoundException;
@@ -30,7 +38,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     private final UniquePersonList persons;
     private final UniqueTagList tags;
     private final TransactionList transactions;
-    private final DebtsTable debtsTable;
+    private DebtsTable debtsTable;
 
     /*
      * The 'unusual' code block below is an non-static initialization block, sometimes used to avoid duplication
@@ -53,6 +61,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public AddressBook(ReadOnlyAddressBook toBeCopied) {
         this();
+        this.debtsTable = toBeCopied.getDebtsTable();
         resetData(toBeCopied);
     }
 
@@ -70,7 +79,9 @@ public class AddressBook implements ReadOnlyAddressBook {
         this.tags.setTags(tags);
     }
 
-
+    public void setDebtsTable(DebtsTable debtsTable) {
+        this.debtsTable.setDebtsTable(debtsTable);
+    }
     /**
      * Resets the existing data of this {@code AddressBook} with {@code newData}.
      */
@@ -81,10 +92,11 @@ public class AddressBook implements ReadOnlyAddressBook {
                 .map(this::syncWithMasterTagList)
                 .collect(Collectors.toList());
         List<Transaction> syncedTransactionList = newData.getTransactionList();
-
+        DebtsTable syncedDebtsTable = newData.getDebtsTable();
         try {
             setPersons(syncedPersonList);
             setTransactions(syncedTransactionList);
+            setDebtsTable(syncedDebtsTable);
         } catch (DuplicatePersonException e) {
             throw new AssertionError("AddressBooks should not have duplicate persons");
         }
@@ -155,12 +167,29 @@ public class AddressBook implements ReadOnlyAddressBook {
      * Removes {@code key} from this {@code AddressBook}.
      * @throws PersonNotFoundException if the {@code key} is not in this {@code AddressBook}.
      */
-    public boolean removePerson(Person key) throws PersonNotFoundException {
+    public boolean removePerson(Person key) throws PersonNotFoundException, CommandException {
+        if (checkDebt(key)) {
+            throw new CommandException(MESSAGE_DEBT_NOT_PAID);
+        }
         if (persons.remove(key)) {
             return true;
         } else {
             throw new PersonNotFoundException();
         }
+    }
+    /**
+     * check if the person to be deleted still owed any unpaid debt
+     */
+    private boolean checkDebt(Person key) {
+        DebtsList debtsList = debtsTable.get(key);
+        if (debtsList != null) {
+            for (Balance value : debtsList.values()) {
+                if (value.getDoubleValue() != 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     //// tag-level operations
@@ -190,6 +219,11 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     @Override
+    public DebtsTable getDebtsTable() {
+        return debtsTable;
+    }
+
+    @Override
     public ObservableList<Transaction> getTransactionList() {
         return transactions.asObservableList();
     }
@@ -209,22 +243,44 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
-     * Adds {@code transaction} to the addressbook.
-     * Updates the balances of the person implied.
-     * @param transaction to add.
+     * add a new transaction
      */
     public void addTransaction(Transaction transaction) {
+        String typeOfTransaction = AddTransactionCommand.COMMAND_WORD;
         transactions.add(transaction);
-        transaction.updatePayerAndPayeesBalance();
-        debtsTable.updateDebts(transaction);
+        debtsTable.updateDebts(typeOfTransaction, transaction);
         debtsTable.display();
     }
 
+    /**
+     * Update each payer and payee(s) balance whenever each new transaction is added
+     */
+    public void updatePayerAndPayeesDebt(String transactionType, Amount amount, Person payer,
+                                            UniquePersonList payees) {
+        updatePayerDebt(transactionType, amount, payer, payees);
+        for (Person payee: payees) {
+            updatePayeeDebt(transactionType, amount, payee, payees); }
+    }
+    /**
+     * Update payer balance whenever each new transaction is added
+     */
+    private void updatePayerDebt(String transactionType, Amount amount, Person payer, UniquePersonList payees) {
+        payer.addToBalance(calculatePayerDebt(transactionType, amount, payees));
+    }
+    /**
+     * Update payee balance whenever each new transaction is added
+     */
+    private void updatePayeeDebt(String transactionType, Amount amount, Person payee, UniquePersonList payees) {
+        payee.addToBalance(calculatePayeeDebt(transactionType, amount, payees));
+    }
     /**
      * Removes {@code target} from the list of transactions.
      * @throws TransactionNotFoundException if the {@code target} is not in the list of transactions.
      */
     public boolean removeTransaction(Transaction target) throws TransactionNotFoundException {
+        String typeOfTransaction = DeleteTransactionCommand.COMMAND_WORD;
+        debtsTable.updateDebts(typeOfTransaction, target);
+        debtsTable.display();
         if (transactions.remove(target)) {
             return true;
         } else {

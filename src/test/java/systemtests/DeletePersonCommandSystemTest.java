@@ -17,6 +17,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.DeletePersonCommand;
 import seedu.address.logic.commands.RedoCommand;
 import seedu.address.logic.commands.UndoCommand;
+import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.exceptions.PersonNotFoundException;
@@ -27,7 +28,7 @@ public class DeletePersonCommandSystemTest extends AddressBookSystemTest {
             String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT, DeletePersonCommand.MESSAGE_USAGE);
 
     @Test
-    public void delete() {
+    public void delete() throws CommandException {
         /* ----------------- Performing delete operation while an unfiltered list is being shown -------------------- */
 
         /* Case: delete the first person in the list, command with leading spaces and trailing spaces -> deleted */
@@ -117,7 +118,7 @@ public class DeletePersonCommandSystemTest extends AddressBookSystemTest {
      * Removes the {@code Person} at the specified {@code index} in {@code model}'s address book.
      * @return the removed person
      */
-    private Person removePerson(Model model, Index index) {
+    private Person removePerson(Model model, Index index) throws CommandException {
         Person targetPerson = getPerson(model, index);
         try {
             model.deletePerson(targetPerson);
@@ -132,7 +133,7 @@ public class DeletePersonCommandSystemTest extends AddressBookSystemTest {
      * performs the same verification as {@code assertCommandSuccess(String, Model, String)}.
      * @see DeletePersonCommandSystemTest#assertCommandSuccess(String, Model, String)
      */
-    private void assertCommandSuccess(Index toDelete) {
+    private void assertCommandSuccess(Index toDelete) throws CommandException {
         Model expectedModel = getModel();
         Person deletedPerson = removePerson(expectedModel, toDelete);
         String expectedResultMessage = String.format(MESSAGE_DELETE_PERSON_SUCCESS, deletedPerson);

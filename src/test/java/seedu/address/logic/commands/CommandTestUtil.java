@@ -125,7 +125,7 @@ public class CommandTestUtil {
     /**
      * Deletes the first person in {@code model}'s filtered list from {@code model}'s address book.
      */
-    public static void deleteFirstPerson(Model model) {
+    public static void deleteFirstPerson(Model model) throws CommandException {
         Person firstPerson = model.getFilteredPersonList().get(0);
         try {
             model.deletePerson(firstPerson);

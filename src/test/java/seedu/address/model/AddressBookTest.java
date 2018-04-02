@@ -103,6 +103,11 @@ public class AddressBookTest {
         public ObservableList<Tag> getTagList() {
             return tags;
         }
+
+        @Override
+        public DebtsTable getDebtsTable() {
+            return null;
+        }
     }
 
 }

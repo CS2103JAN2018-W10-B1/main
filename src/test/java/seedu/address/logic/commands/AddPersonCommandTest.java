@@ -8,7 +8,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import org.junit.Rule;
@@ -16,14 +15,17 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import javafx.collections.ObservableList;
+import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.logic.CommandHistory;
 import seedu.address.logic.UndoRedoStack;
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.logic.parser.ArgumentMultimap;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.UniquePersonList;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
 import seedu.address.model.person.exceptions.PersonNotFoundException;
 import seedu.address.model.transaction.Transaction;
@@ -134,21 +136,32 @@ public class AddPersonCommandTest {
         }
 
         @Override
+        public UniquePersonList getPayeesList(ArgumentMultimap argMultimap, Model model) throws PersonNotFoundException,
+                IllegalValueException {
+            return null;
+        }
+
+        @Override
+        public void findPersonInTransaction(Name name) throws PersonNotFoundException {
+
+        }
+
+        @Override
         public ObservableList<Person> getFilteredPersonList() {
             fail("This method should not be called.");
             return null;
         }
 
         @Override
-        public Set<Transaction> findTransactionsWithPayer(Person person) throws TransactionNotFoundException {
+        public boolean findTransactionsWithPayer(Person person) throws TransactionNotFoundException {
             fail("This method should not be called.");
-            return null;
+            return true;
         }
 
         @Override
-        public Set<Transaction> findTransactionsWithPayee(Person person) throws TransactionNotFoundException {
+        public boolean findTransactionsWithPayee(Person person) throws TransactionNotFoundException {
             fail("This method should not be called.");
-            return null;
+            return true;
         }
 
         @Override

@@ -24,6 +24,7 @@ public class DeletePersonCommand extends UndoableCommand {
             + "Example: " + COMMAND_WORD + " 1";
 
     public static final String MESSAGE_DELETE_PERSON_SUCCESS = "Deleted Person: %1$s";
+    public static final String MESSAGE_DEBT_NOT_PAID = "Unable to delete, current person debt not cleared";
 
     private final Index targetIndex;
 
@@ -35,16 +36,16 @@ public class DeletePersonCommand extends UndoableCommand {
 
 
     @Override
-    public CommandResult executeUndoableCommand() {
+    public CommandResult executeUndoableCommand() throws CommandException {
         requireNonNull(personToDelete);
         try {
             model.deletePerson(personToDelete);
         } catch (PersonNotFoundException pnfe) {
             throw new AssertionError("The target person cannot be missing");
         }
-
         return new CommandResult(String.format(MESSAGE_DELETE_PERSON_SUCCESS, personToDelete));
     }
+
 
     @Override
     protected void preprocessUndoableCommand() throws CommandException {
